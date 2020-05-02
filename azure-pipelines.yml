@@ -69,20 +69,6 @@ stages:
               action: createSecret
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
-
-          - task: AzureCLI@2
-            displayName: get host suffix
-            inputs:
-              scriptType: pscore
-              scriptLocation: inlineScript
-              azureSubscription: $(azureConnection)
-              inlineScript: |
-                $clusterId="/subscriptions/afc11291-9826-46be-b852-70349146ddf8/resourcegroups/build-rn/providers/Microsoft.ContainerService/managedClusters/dev"
-                $resourceGroupName="builr-rn"
-                $clusterName="dev"
-                az aks use-dev-spaces -n $clusterName -g $resourceGroupName -s portal-dev -y
-                $hostSuffix=$(azds show-context -o json | ConvertFrom-Json).hostSuffix
-                echo "##vso[task.setvariable variable=HostSuffix]$hostSuffix"
               
           - task: KubernetesManifest@0
             displayName: Deploy to Kubernetes cluster
@@ -123,19 +109,6 @@ stages:
               namespace: $(k8sNamespaceForPR)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
           
-          - task: AzureCLI@2
-            displayName: get host suffix
-            inputs:
-              scriptType: pscore
-              scriptLocation: inlineScript
-              azureSubscription: $(azureConnection)
-              inlineScript: |
-                $clusterId="/subscriptions/afc11291-9826-46be-b852-70349146ddf8/resourcegroups/build-rn/providers/Microsoft.ContainerService/managedClusters/dev"
-                $resourceGroupName="builr-rn"
-                $clusterName="dev"
-                az aks use-dev-spaces -n $clusterName -g $resourceGroupName -s portal-dev -y
-                $hostSuffix=$(azds show-context -o json | ConvertFrom-Json).hostSuffix
-                echo "##vso[task.setvariable variable=HostSuffix]$hostSuffix"
                 
           - task: KubernetesManifest@0
             displayName: Deploy to the new namespace in the Kubernetes cluster
@@ -169,8 +142,3 @@ stages:
                 message="${message} and is available at $url.<br><br>[Learn More](https://aka.ms/testwithreviewapps) about how to test and provide feedback for the app."
               fi
               echo "##vso[task.setvariable variable=GITHUB_COMMENT]$message"
-
-
-#          - script: |
-#              message="Deployment to your Review App succeeded.<br><br>You can navigate to http://$(k8sNamespaceForPR).s.app.$(HostSuffix) to test your changes"
-#              echo "##vso[task.setvariable variable=GITHUB_COMMENT]$message"
