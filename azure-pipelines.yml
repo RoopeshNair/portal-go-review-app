@@ -46,13 +46,12 @@ stages:
         tags: |
           $(tag)
           
-    - upload: charts
-      artifact: charts
+    - upload: manifests
+      artifact: manifests
 
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
-
   jobs:
   - deployment: Deploy
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
@@ -172,6 +171,6 @@ stages:
               echo "##vso[task.setvariable variable=GITHUB_COMMENT]$message"
 
 
-          - script: |
-              message="Deployment to your Review App succeeded.<br><br>You can navigate to http://$(k8sNamespaceForPR).s.app.$(HostSuffix) to test your changes"
-              echo "##vso[task.setvariable variable=GITHUB_COMMENT]$message"
+#          - script: |
+#              message="Deployment to your Review App succeeded.<br><br>You can navigate to http://$(k8sNamespaceForPR).s.app.$(HostSuffix) to test your changes"
+#              echo "##vso[task.setvariable variable=GITHUB_COMMENT]$message"
